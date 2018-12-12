@@ -1,0 +1,56 @@
+---
+- name: Deploy on Debian
+  hosts: server
+  vars:
+    ansible_ssh_port: 2210
+  remote_user: root
+  tasks:
+    - name: APT | UPGRADE && UPDATE
+      apt:
+        upgrade: yes
+        update_cache: yes
+    - name: APT | Install default needed packages
+      apt:
+        name:
+          - vim
+          - sudo
+          - htop
+        state: latest
+    - name: APT | Install apache
+      apt:
+        name: apache2
+        state: latest
+    - name: SSH | Changing port to 2210
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^Port '
+        line: 'Port 2210'
+    - name: SSH | Disable empty passwords
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#PermitEmptyPasswords '
+        line: 'PermitEmptyPasswords no'
+    - name: SSH | Disable password auth
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+    - name: SSH | PubkeyAuthentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#PubkeyAuthentication'
+        line: 'PubkeyAuthentication yes'
+    - name: SCRIPTS | Copying scripts
+      copy:
+        src: scripts/
+        dest: /opt/
+        mode: u=rwx,g=rx,o=rx
+    - name: SSH | Disable root login
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#PermitRootLogin '
+        line: 'PermitRootLogin no'
+    - name: SSH | Restarting service
+      service:
+        name: sshd
+        state: restarted
