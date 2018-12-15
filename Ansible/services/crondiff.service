@@ -1,0 +1,7 @@
+[Unit]
+Description=Mails root if there's a diff in crontab
+
+[Service]
+User=root
+ExecStart=/opt/crondiff
+Type=oneshot

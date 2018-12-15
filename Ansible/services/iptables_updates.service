@@ -1,0 +1,8 @@
+[Unit]
+Description=Reset iptables and put good ones
+After=network.target
+
+[Service]
+User=root
+ExecStart=/opt/iptables
+Type=oneshot

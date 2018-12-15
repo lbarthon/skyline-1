@@ -1,0 +1,9 @@
+[Unit]
+Description=Aptitude auto update script -- Timer part
+
+[Timer]
+OnBootSec=0
+OnCalendar=Mon *-*-* 04:00:00
+
+[Install]
+WantedBy=timers.target

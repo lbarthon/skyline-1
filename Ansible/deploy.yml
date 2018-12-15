@@ -2,7 +2,7 @@
 - name: Deploy on Debian
   hosts: server
   vars:
-    ansible_ssh_port: 2210
+    ansible_ssh_port: 5555
   remote_user: root
   tasks:
     - name: APT | UPGRADE && UPDATE
@@ -16,14 +16,25 @@
           - sudo
           - htop
         state: latest
-    - name: APT | Install apache
+    - name: APT | Install apache2
       apt:
         name: apache2
         state: latest
+    - name: SCRIPTS | Copying scripts
+      copy:
+        src: scripts/
+        dest: /opt/
+        mode: u=rwx,g=rx,o=rx
+    - name: SCRIPTS | Copying timers and services
+      copy:
+        src: services/
+        dest: /etc/systemd/system/
+    - name: SCRIPTS | Enabling timers
+      command: systemctl enable crondiff.timer iptables_updates.timer apt_updates.timer
     - name: SSH | Changing port to 2210
       lineinfile:
         path: /etc/ssh/sshd_config
-        regexp: '^Port '
+        regexp: '^#Port '
         line: 'Port 2210'
     - name: SSH | Disable empty passwords
       lineinfile:
@@ -40,11 +51,6 @@
         path: /etc/ssh/sshd_config
         regexp: '^#PubkeyAuthentication'
         line: 'PubkeyAuthentication yes'
-    - name: SCRIPTS | Copying scripts
-      copy:
-        src: scripts/
-        dest: /opt/
-        mode: u=rwx,g=rx,o=rx
     - name: SSH | Disable root login
       lineinfile:
         path: /etc/ssh/sshd_config

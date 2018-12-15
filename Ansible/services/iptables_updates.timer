@@ -1,0 +1,8 @@
+[Unit]
+Description=Reset iptables and put good ones -- Timer part
+
+[Timer]
+OnBootSec=0
+
+[Install]
+WantedBy=timers.target
